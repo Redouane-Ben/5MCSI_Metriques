@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Statistiques GitHub</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0d1117, #161b22);
+      color: #c9d1d9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background-color: #161b22;
+      padding: 30px;
+      border-radius: 14px;
+      width: 360px;
+      text-align: center;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 1.4em;
+    }
+
+    p {
+      font-size: 0.95em;
+      color: #8b949e;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: #238636;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #2ea043;
+      transform: translateY(-2px);
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: 15px;
+      font-size: 0.8em;
+      color: #6e7681;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>Statistiques GitHub</h1>
+    <p>Nombre total de commits sur un dépôt</p>
+
+    <button onclick="getCommits()">Afficher les commits</button>
+
+    <div class="result" id="result">—</div>
+
+    <footer>
+      Token masqué pour raisons de sécurité
+    </footer>
+  </div>
+
+  <script>
+    const USERNAME = "USERNAME";
+    const REPO = "REPO";
+    const TOKEN = "VOTRE_TOKEN_GITHUB_ICI";
+
+    async function getCommits() {
+      let page = 1;
+      let totalCommits = 0;
+
+      while (true) {
+        const response = await fetch(
+          `https://api.github.com/repos/${USERNAME}/${REPO}/commits?per_page=100&page=${page}`,
+          {
+            headers: {
+              "Authorization": `token ${TOKEN}`
+            }
+          }
+        );
+
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          break;
+        }
+
+        totalCommits += data.length;
+        page++;
+      }
+
+      document.getElementById("result").innerText =
+        `Nombre total de commits : ${totalCommits}`;
+    }
+  </script>
+
+</body>
+</html>
