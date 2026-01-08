@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact – Tawarano</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(135deg, #1d3557, #457b9d);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background-color: #ffffff;
+      width: 420px;
+      padding: 30px 35px;
+      border-radius: 15px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #1d3557;
+    }
+
+    p {
+      text-align: center;
+      font-size: 0.95em;
+      color: #555;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 0.95em;
+      margin-bottom: 15px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #457b9d;
+      box-shadow: 0 0 0 2px rgba(69, 123, 157, 0.2);
+    }
+
+    textarea {
+      resize: none;
+      height: 110px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-color: #1d3557;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #457b9d;
+      transform: translateY(-2px);
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8em;
+      color: #888;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Me contacter</h1>
+    <p>Laissez-moi un message, je vous répondrai avec plaisir.</p>
+
+    <form>
+      <label for="nom">Nom</label>
+      <input type="text" id="nom" placeholder="Votre nom">
+
+      <label for="prenom">Prénom</label>
+      <input type="text" id="prenom" placeholder="Votre prénom">
+
+      <label for="message">Message</label>
+      <textarea id="message" placeholder="Votre message..."></textarea>
+
+      <button type="submit">Envoyer le message</button>
+    </form>
+
+    <footer>
+      © 2026 – Projet Tawarano
+    </footer>
+  </div>
+
+</body>
+</html>
