@@ -2,64 +2,66 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Statistiques GitHub</title>
+  <title>Activité GitHub – Analyse des commits</title>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0d1117, #161b22);
+      background-color: #0d1117;
       color: #c9d1d9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
-    }
-
-    .card {
-      background-color: #161b22;
-      padding: 30px;
-      border-radius: 14px;
-      width: 360px;
-      text-align: center;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+      padding: 40px;
     }
 
     h1 {
-      margin-bottom: 10px;
-      font-size: 1.4em;
+      text-align: center;
+      margin-bottom: 30px;
     }
 
-    p {
-      font-size: 0.95em;
-      color: #8b949e;
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background-color: #161b22;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     }
 
     button {
-      margin-top: 20px;
-      padding: 12px 20px;
+      display: block;
+      margin: 0 auto 20px;
+      padding: 12px 25px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       background-color: #238636;
       color: white;
       font-size: 1em;
       cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
     }
 
     button:hover {
       background-color: #2ea043;
-      transform: translateY(-2px);
     }
 
-    .result {
+    table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 20px;
-      font-size: 1.1em;
-      font-weight: bold;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #30363d;
+    }
+
+    th {
+      color: #58a6ff;
     }
 
     footer {
-      margin-top: 15px;
+      margin-top: 20px;
+      text-align: center;
       font-size: 0.8em;
       color: #6e7681;
     }
@@ -68,50 +70,57 @@
 
 <body>
 
-  <div class="card">
-    <h1>Statistiques GitHub</h1>
-    <p>Nombre total de commits sur un dépôt</p>
+  <h1>Analyse de l’activité GitHub</h1>
 
-    <button onclick="getCommits()">Afficher les commits</button>
+  <div class="container">
+    <button onclick="loadCommits()">Charger l’activité</button>
 
-    <div class="result" id="result">—</div>
+    <table id="table" style="display:none;">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date du commit</th>
+          <th>Minute</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
 
     <footer>
-      Token masqué pour raisons de sécurité
+      Source : OpenRSI / 5MCSI_Metriques
     </footer>
   </div>
 
   <script>
-    const USERNAME = "Redouane-Ben";
-    const REPO = "PROJET-METRIQUES";
-    const TOKEN = "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";
+    const API_URL = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits";
 
-    async function getCommits() {
-      let page = 1;
-      let totalCommits = 0;
+    function extractMinute(dateString) {
+      // Exemple : "2024-02-11T11:57:27Z"
+      const date = new Date(dateString);
+      return date.getMinutes();
+    }
 
-      while (true) {
-        const response = await fetch(
-          `https://api.github.com/repos/${USERNAME}/${REPO}/commits?per_page=100&page=${page}`,
-          {
-            headers: {
-              "Authorization": `token ${TOKEN}`
-            }
-          }
-        );
+    async function loadCommits() {
+      const response = await fetch(API_URL);
+      const commits = await response.json();
 
-        const data = await response.json();
+      const tbody = document.getElementById("tbody");
+      tbody.innerHTML = "";
 
-        if (!Array.isArray(data) || data.length === 0) {
-          break;
-        }
+      commits.forEach((item, index) => {
+        const commitDate = item.commit.author.date;
+        const minute = extractMinute(commitDate);
 
-        totalCommits += data.length;
-        page++;
-      }
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${commitDate}</td>
+          <td>${minute}</td>
+        `;
+        tbody.appendChild(row);
+      });
 
-      document.getElementById("result").innerText =
-        `Nombre total de commits : ${totalCommits}`;
+      document.getElementById("table").style.display = "table";
     }
   </script>
 
