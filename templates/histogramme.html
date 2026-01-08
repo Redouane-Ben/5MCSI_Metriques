@@ -2,41 +2,49 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Histogramme Températures</title>
+    <title>Évolution des températures - Tawarano</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-    <script type="text/javascript">
-      google.charts.load("current", { packages: ["corechart"] });
+    <script>
+      google.charts.load('current', { packages: ['corechart'] });
       google.charts.setOnLoadCallback(loadData);
 
       function loadData() {
         fetch('/tawarano/')
           .then(response => response.json())
-          .then(data => {
-            drawChart(data);
-          });
+          .then(data => drawChart(data));
       }
 
       function drawChart(apiData) {
-        // Création du tableau pour l'histogramme
         var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Date');
         dataTable.addColumn('number', 'Température (°C)');
 
         apiData.results.forEach(entry => {
-          dataTable.addRow([entry.temp]);
+          var date = new Date(entry.Jour * 1000);
+          dataTable.addRow([
+            date.toLocaleDateString(),
+            entry.temp
+          ]);
         });
 
         var options = {
-          title: "Distribution des températures à Tawarano",
+          title: "Évolution des températures de la ville de Tawarano",
           legend: { position: 'none' },
-          histogram: {
-            bucketSize: 1
+          hAxis: {
+            title: 'Date',
+            slantedText: true,
+            slantedTextAngle: 45
+          },
+          vAxis: {
+            title: 'Température (°C)'
           }
         };
 
-        var chart = new google.visualization.Histogram(
+        var chart = new google.visualization.ColumnChart(
           document.getElementById('chart_div')
         );
+
         chart.draw(dataTable, options);
       }
     </script>
