@@ -12,8 +12,8 @@ def MaPremiereAPI():
     return render_template("contact.html")
 
 @app.route("/commit/")
-def MaPremiereAPI():
-    return render_template2("commit.html")
+def MaPremiereAPI2():
+    return render_template("commit.html")
 
 @app.route('/tawarano/')
 def meteo():
