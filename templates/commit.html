@@ -2,45 +2,29 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Activité GitHub – Analyse des commits</title>
+  <title>Analyse des commits GitHub</title>
+
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #0d1117;
       color: #c9d1d9;
-      margin: 0;
       padding: 40px;
     }
 
-    h1 {
+    h1, h2 {
       text-align: center;
-      margin-bottom: 30px;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
       background-color: #161b22;
       padding: 25px;
       border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
-
-    button {
-      display: block;
-      margin: 0 auto 20px;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 8px;
-      background-color: #238636;
-      color: white;
-      font-size: 1em;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #2ea043;
+      margin-bottom: 40px;
     }
 
     table {
@@ -59,70 +43,116 @@
       color: #58a6ff;
     }
 
-    footer {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 0.8em;
-      color: #6e7681;
+    #chart_div {
+      width: 100%;
+      height: 400px;
+    }
+
+    button {
+      display: block;
+      margin: 0 auto 20px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      background-color: #238636;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2ea043;
     }
   </style>
 </head>
 
 <body>
 
-  <h1>Analyse de l’activité GitHub</h1>
+<h1>Analyse de l’activité GitHub</h1>
 
-  <div class="container">
-    <button onclick="loadCommits()">Charger l’activité</button>
+<div class="container">
+  <button onclick="loadCommits()">Charger les commits</button>
 
-    <table id="table" style="display:none;">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Date du commit</th>
-          <th>Minute</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+  <table id="table" style="display:none;">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Commit (SHA)</th>
+        <th>Date</th>
+        <th>Heure</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
 
-    <footer>
-      Source : OpenRSI / 5MCSI_Metriques
-    </footer>
-  </div>
+<div class="container">
+  <h2>Nombre de commits par heure</h2>
+  <div id="chart_div"></div>
+</div>
 
-  <script>
-    const API_URL = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits";
+<script>
+  const API_URL = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits";
 
-    function extractMinute(dateString) {
-      // Exemple : "2024-02-11T11:57:27Z"
+  google.charts.load("current", { packages: ["corechart"] });
+
+  async function loadCommits() {
+    const response = await fetch(API_URL);
+    const commits = await response.json();
+
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+
+    // Tableau de comptage des heures (0 à 23)
+    const commitsByHour = Array(24).fill(0);
+
+    commits.forEach((item, index) => {
+      const dateString = item.commit.author.date;
       const date = new Date(dateString);
-      return date.getMinutes();
+
+      const hour = date.getHours();
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+
+      commitsByHour[hour]++;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${item.sha.substring(0, 7)}</td>
+        <td>${date.toLocaleDateString()}</td>
+        <td>${hour}h${minutes}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    document.getElementById("table").style.display = "table";
+
+    google.charts.setOnLoadCallback(() => drawChart(commitsByHour));
+  }
+
+  function drawChart(commitsByHour) {
+    const data = new google.visualization.DataTable();
+    data.addColumn("string", "Heure");
+    data.addColumn("number", "Nombre de commits");
+
+    for (let hour = 0; hour < 24; hour++) {
+      data.addRow([`${hour}h`, commitsByHour[hour]]);
     }
 
-    async function loadCommits() {
-      const response = await fetch(API_URL);
-      const commits = await response.json();
+    const options = {
+      title: "Répartition des commits par heure",
+      legend: { position: "none" },
+      hAxis: { title: "Heure de la journée" },
+      vAxis: { title: "Nombre de commits" }
+    };
 
-      const tbody = document.getElementById("tbody");
-      tbody.innerHTML = "";
+    const chart = new google.visualization.ColumnChart(
+      document.getElementById("chart_div")
+    );
 
-      commits.forEach((item, index) => {
-        const commitDate = item.commit.author.date;
-        const minute = extractMinute(commitDate);
-
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${commitDate}</td>
-          <td>${minute}</td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      document.getElementById("table").style.display = "table";
-    }
-  </script>
+    chart.draw(data, options);
+  }
+</script>
 
 </body>
 </html>
